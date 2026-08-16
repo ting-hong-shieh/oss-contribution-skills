@@ -1,0 +1,26 @@
+{
+  "name": "oss-contribution-skills",
+  "version": "0.1.0",
+  "description": "Agent skills and enforcement adapters for high-quality OSS contributions with low maintainer burden.",
+  "author": {
+    "name": "Ting-Hong Shieh"
+  },
+  "license": "Apache-2.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "OSS Contribution Skills",
+    "shortDescription": "Qualify, execute, and maintain OSS contributions safely.",
+    "longDescription": "Portable Agent Skills and deterministic gates for evidence-backed open-source contributions with lower maintainer burden.",
+    "developerName": "Ting-Hong Shieh",
+    "category": "developer-tools",
+    "capabilities": [
+      "skills",
+      "review",
+      "workflow"
+    ],
+    "defaultPrompt": [
+      "Assess this OSS target with oss-radar.",
+      "Prepare this approved contribution with oss-contribute."
+    ]
+  }
+}

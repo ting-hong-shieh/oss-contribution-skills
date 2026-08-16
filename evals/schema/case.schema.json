@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "skill",
+    "prompt",
+    "fixture",
+    "expected",
+    "must_notice",
+    "must_not"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9]{3}-[a-z0-9-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5
+    },
+    "skill": {
+      "enum": [
+        "oss-radar",
+        "oss-contribute",
+        "oss-pr-maintenance",
+        "adapter"
+      ]
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 5
+    },
+    "fixture": {
+      "type": "object"
+    },
+    "expected": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "must_notice": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "must_not": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

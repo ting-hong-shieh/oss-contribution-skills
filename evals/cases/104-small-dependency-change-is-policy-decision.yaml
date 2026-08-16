@@ -1,0 +1,21 @@
+id: 104-small-dependency-change-is-policy-decision
+title: A one-line dependency addition makes the default local suite contact external
+  providers
+skill: oss-radar
+prompt: Assess whether the one-line dependency PR should proceed.
+fixture:
+  change: add an existing optional dependency to the documented install list
+  effect: 18 previously skipped tests now contact three real tile providers
+  ci_effect: CI already installs the dependency
+  maintainer_direction: none
+expected:
+  decision: ASK
+  state: QUALIFIED
+must_notice:
+- The change alters default local network behavior, not only packaging consistency.
+- Maintainer policy is needed before implementation is promoted.
+- The PR can remain Draft while the policy decision is pending.
+must_not:
+- Call it a trivial safe one-line fix.
+- Assume upstream wants networked default tests.
+- Make it Ready without a maintainer decision.

@@ -1,0 +1,13 @@
+{
+  "name": "oss-contribution-skills",
+  "owner": {
+    "name": "Ting-Hong Shieh"
+  },
+  "plugins": [
+    {
+      "name": "oss-contribution-skills",
+      "source": "./",
+      "version": "0.1.0"
+    }
+  ]
+}

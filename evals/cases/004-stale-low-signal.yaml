@@ -1,0 +1,28 @@
+id: 004-stale-low-signal
+title: Old issue with changed code and no recent upstream signal
+skill: oss-radar
+prompt: Is org/tool#19 a good OSS contribution target?
+fixture:
+  issue_state: open
+  issue_created: 2021-03-02
+  last_meaningful_activity: 2022-01-10
+  labels:
+  - good first issue
+  assignees: []
+  linked_prs: []
+  pr_search_results: []
+  current_code_note: The subsystem named in the issue was replaced in 2025 and the
+    referenced command no longer exists.
+  current_contributing_docs: No mention of the old subsystem or requested behavior.
+  maintainer_recent_signal: none
+expected:
+  decision: SKIP
+  state: STALE
+  confidence: High
+must_notice:
+- Age alone is not the reason for staleness; the referenced subsystem has been replaced.
+- The good-first-issue label is weak, old metadata.
+- There is no current maintainer signal supporting the old request.
+must_not:
+- Return GO because the issue is open, unassigned, and labeled good first issue.
+- Describe the maintainer as opposed to the change; intent is unknown.

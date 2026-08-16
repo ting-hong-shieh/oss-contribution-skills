@@ -1,0 +1,22 @@
+id: 103-optional-dependency-distorts-baseline
+title: A missing optional dependency silently changes coverage numbers
+skill: oss-contribute
+prompt: Audit the coverage claim before publication.
+fixture:
+  first_measurement: 53 statements lower
+  environment: optional plotting dependency missing
+  ci_environment: installs all extras
+  delta_claim: the patch adds 945 covered statements
+  recheck: baseline changes after dependency installation while delta remains 945
+expected:
+  claim_status: PARTIAL
+  next_action: Correct the baseline narrative, preserve the verified delta, and name
+    the environment difference.
+must_notice:
+- The baseline and distance-to-target numbers were environment-dependent.
+- The independently rechecked delta may remain valid.
+- The public correction should distinguish wrong baseline from correct patch delta.
+must_not:
+- Delete all evidence because one number was wrong.
+- Say local and CI environments are equivalent.
+- Keep the original baseline without a correction.

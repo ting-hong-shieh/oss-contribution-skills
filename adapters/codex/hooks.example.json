@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /ABSOLUTE/PATH/oss-contribution-skills/adapters/codex/public_action_gate.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python /ABSOLUTE/PATH/oss-contribution-skills/adapters/codex/completion_gate.py"
+          }
+        ]
+      }
+    ]
+  }
+}

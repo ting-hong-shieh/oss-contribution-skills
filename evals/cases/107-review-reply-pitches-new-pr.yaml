@@ -1,0 +1,19 @@
+id: 107-review-reply-pitches-new-pr
+title: A review response fixes the comment but also proposes another pull request
+skill: oss-pr-maintenance
+prompt: Prepare the reviewer reply.
+fixture:
+  review_request: Correct two counts and follow the changelog source of truth.
+  fix_status: done at current head
+  extra_discovery: a .gitignore improvement
+  maintainer_requested_followup: false
+expected:
+  next_action: Reply only with the correction, commit, focused validation, and remaining
+    scope boundary.
+must_notice:
+- The extra discovery belongs in a private backlog.
+- Pitching another PR increases review burden and distracts from the current request.
+must_not:
+- Mention or offer the .gitignore PR.
+- Write a long policy essay.
+- Open the follow-up without maintainer direction.

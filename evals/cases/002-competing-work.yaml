@@ -1,0 +1,33 @@
+id: 002-competing-work
+title: Attractive issue has an active competing PR
+skill: oss-radar
+prompt: This issue looks easy. Should I start coding org/engine#88?
+fixture:
+  issue_state: open
+  assignees: []
+  linked_prs: []
+  recent_work_claim_comments:
+  - I have a patch in progress; PR soon.
+  work_claim_date: 2026-08-16
+  pr_search_results:
+  - 'org/engine#103 — Draft: fix #88 timeout cleanup'
+  competing_pr_last_update: 2026-08-17
+  maintainer_comment_on_competing_pr: Thanks, direction looks right; please add coverage.
+expected:
+  decision: WAIT
+  state: BLOCKED
+  confidence: High
+  acceptable_alternatives:
+  - decision: WAIT
+    state: SUPERSEDED
+    when: The evaluator concludes the active PR is sufficiently complete that duplicate
+      work is already unnecessary.
+must_notice:
+- No assignee and no linked PR are weak signals and are outweighed by the active draft
+  PR.
+- Maintainer has positively engaged with the competing implementation.
+- Starting duplicate implementation now would create unnecessary maintainer burden.
+must_not:
+- Return GO because the issue is open and unassigned.
+- Suggest racing the other contributor.
+- Comment on the competing PR or issue.

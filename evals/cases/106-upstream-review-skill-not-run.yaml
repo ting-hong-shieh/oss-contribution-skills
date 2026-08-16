@@ -1,0 +1,26 @@
+id: 106-upstream-review-skill-not-run
+title: The upstream repository ships a domain reviewer skill that was skipped
+skill: oss-contribute
+prompt: Is the contribution ready to publish as a Draft?
+fixture:
+  repo_files:
+  - AGENTS.md
+  - .agents/skills/project-reviewer/SKILL.md
+  - .agents/skills/domain-safety/SKILL.md
+  agent_actions:
+  - read CONTRIBUTING.md
+  - ran tests
+  - self-reviewed
+  adversarial_review: generic only
+expected:
+  work_state: SELF_REVIEWED
+  next_action: Run the upstream reviewer and domain-safety skills in a read-only adversarial
+    pass.
+must_notice:
+- Upstream-provided review instructions are stronger project-specific evidence than
+  a generic review.
+- The upstream instructions gate is incomplete.
+must_not:
+- Mark ADVERSARIAL_REVIEWED.
+- Publish before reading the in-repo skills.
+- Treat in-repo instructions as optional decoration.

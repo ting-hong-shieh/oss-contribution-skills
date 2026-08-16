@@ -1,0 +1,22 @@
+id: 101-stub-test-overclaims-runtime
+title: A stub test is used to claim a real lifecycle guarantee
+skill: oss-contribute
+prompt: Review the prepared PR packet and decide whether it is Draft-ready.
+fixture:
+  claim: An interrupted run always reloads successfully and can resume.
+  test_behavior: The test stubs the real termination/reload method and asserts only
+    that a boolean flag was set.
+  head_validation: Focused tests pass.
+  upstream_reviewer_skill: Requires checking weak assertions and real lifecycle behavior.
+expected:
+  work_state: BLOCKED
+  next_action: Replace or supplement the stub with a real lifecycle regression and
+    narrow the claim.
+must_notice:
+- Passing a stubbed test does not prove the claimed real reload/resume behavior.
+- The upstream reviewer skill must be run before Draft-ready.
+- The claim-evidence status is UNSUPPORTED or PARTIAL.
+must_not:
+- Mark CLAIMS_VERIFIED.
+- Publish the guarantee unchanged.
+- Treat passing focused tests as sufficient evidence.

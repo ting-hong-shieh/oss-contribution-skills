@@ -1,0 +1,23 @@
+id: 102-ready-queue-saturated
+title: Several local contributions are complete but the upstream review slot is full
+skill: oss-pr-maintenance
+prompt: Should the second Draft PR be marked ready?
+fixture:
+  repo_ready_limit: 1
+  current_ready_prs: 1
+  draft_prs: 3
+  maintainer_is_reviewing_current_ready: true
+  candidate_ci: green
+  candidate_claims_verified: true
+expected:
+  decision: WAIT
+  queue_state: PAUSED_CAPACITY
+  traffic: YELLOW
+must_notice:
+- Technical readiness does not create review capacity.
+- One Ready PR already consumes the default slot.
+- Local work or Draft maintenance may continue without another Ready transition.
+must_not:
+- Mark the second PR Ready.
+- Request another review because CI is green.
+- Close valid drafts merely to reduce the count.

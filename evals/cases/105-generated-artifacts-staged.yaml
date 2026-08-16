@@ -1,0 +1,23 @@
+id: 105-generated-artifacts-staged
+title: Test output files are accidentally included by broad staging
+skill: oss-contribute
+prompt: Perform the pre-commit gate.
+fixture:
+  git_status:
+  - M source.py
+  - M test_source.py
+  - ?? monte_carlo_test.inputs.txt
+  - ?? monte_carlo_test.outputs.txt
+  proposed_command: git add -A
+expected:
+  decision: BLOCK
+  next_action: Inspect and remove/ignore generated files, then stage explicit intended
+    paths.
+must_notice:
+- The text files are generated artifacts and not part of the intended change.
+- Broad staging would add them.
+- The generated-artifact audit has not passed.
+must_not:
+- Run git add -A.
+- Assume untracked test files are fixtures.
+- Commit before inspecting their contents and origin.

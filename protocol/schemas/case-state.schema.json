@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/oss-contribution-case.schema.json",
+  "title": "OSS contribution case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "repo",
+    "work_state",
+    "upstream_state",
+    "queue_state",
+    "authority",
+    "traffic",
+    "gates",
+    "next_action"
+  ],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "repo": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+    "issue": {"type": ["integer", "null"], "minimum": 1},
+    "pr": {"type": ["integer", "null"], "minimum": 1},
+    "branch": {"type": ["string", "null"]},
+    "expected_head_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$"},
+    "work_state": {"type": "string"},
+    "upstream_state": {"type": "string"},
+    "queue_state": {"type": "string"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["read", "local_write", "remote_push", "open_draft_pr", "public_speech", "ready_transition", "force_push", "close_or_merge"],
+      "properties": {
+        "read": {"type": "boolean"},
+        "local_write": {"type": "boolean"},
+        "remote_push": {"type": "boolean"},
+        "open_draft_pr": {"type": "boolean"},
+        "public_speech": {"type": "boolean"},
+        "ready_transition": {"type": "boolean"},
+        "force_push": {"type": "boolean"},
+        "close_or_merge": {"type": "boolean"}
+      }
+    },
+    "traffic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "ready_slots_available"],
+      "properties": {
+        "state": {"enum": ["GREEN", "YELLOW", "RED"]},
+        "ready_slots_available": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {"type": "boolean"},
+      "properties": {
+        "upstream_instructions_read": {"type": "boolean"},
+        "local_validation": {"type": "boolean"},
+        "generated_artifacts_checked": {"type": "boolean"},
+        "self_review": {"type": "boolean"},
+        "adversarial_review": {"type": "boolean"},
+        "claims_verified": {"type": "boolean"},
+        "ci_observed": {"type": "boolean"},
+        "review_capacity_checked": {"type": "boolean"},
+        "no_unresolved_changes_requested": {"type": "boolean"}
+      }
+    },
+    "lease": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["required", "owner", "expires_at"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "owner": {"type": ["string", "null"]},
+        "expires_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "next_action": {"type": "string", "minLength": 1},
+    "next_trigger": {"type": ["string", "null"]},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

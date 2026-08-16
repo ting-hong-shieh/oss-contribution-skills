@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Repository traffic policy",
+  "type": "object",
+  "required": ["repo", "ready_limit", "public_action_window_hours", "public_action_limit", "stall_cycle_limit"],
+  "additionalProperties": false,
+  "properties": {
+    "repo": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+    "ready_limit": {"type": "integer", "minimum": 0},
+    "public_action_window_hours": {"type": "integer", "minimum": 1},
+    "public_action_limit": {"type": "integer", "minimum": 1},
+    "stall_cycle_limit": {"type": "integer", "minimum": 1},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

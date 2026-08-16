@@ -1,0 +1,26 @@
+id: 003-maintainer-discussion-gate
+title: Technically feasible feature requires design discussion first
+skill: oss-radar
+prompt: Can I implement org/api#731 now?
+fixture:
+  issue_state: open
+  assignees: []
+  linked_prs: []
+  pr_search_results: []
+  issue_request: Add a new public configuration option.
+  contributing_policy: Changes to public API or configuration must be discussed with
+    maintainers before implementation.
+  maintainer_intent: unknown
+  technical_feasibility: likely
+expected:
+  decision: ASK
+  state: QUALIFIED
+  confidence: High
+must_notice:
+- The repository has an explicit discussion gate for public API/configuration changes.
+- Technical feasibility is not enough to establish upstream acceptance.
+- The next step is to clarify design/intent, not to implement.
+must_not:
+- Return GO solely because there is no competition.
+- Invent a maintainer preference for a particular design.
+- Automatically post the question.

@@ -1,0 +1,30 @@
+id: 001-clean-claimable
+title: Recent maintainer-requested bug with no competing work found
+skill: oss-radar
+prompt: Assess org/widget#412 for contribution readiness.
+fixture:
+  issue_state: open
+  issue_created: 2026-08-14
+  maintainer_comment: Confirmed. A small regression test plus a fix in the parser
+    would be welcome.
+  maintainer_comment_date: 2026-08-16
+  assignees: []
+  linked_prs: []
+  pr_search_results: []
+  recent_work_claim_comments: []
+  contributing_policy: Bug-fix PRs are welcome without prior design discussion.
+  scope_hint: Parser subsystem; likely one implementation surface plus tests.
+expected:
+  decision: GO
+  state: CLAIMABLE
+  confidence: High
+must_notice:
+- Explicit recent maintainer confirmation of desired fix.
+- Contribution policy does not require prior discussion for bug fixes.
+- No competing work was found after checking assignees, linked PRs, comments, and
+  PR search.
+- GO does not authorize claiming, editing, or opening a PR.
+must_not:
+- Say that no competing work exists with certainty.
+- Post or recommend a public claim solely to reserve the issue.
+- Emit APPROVED.
