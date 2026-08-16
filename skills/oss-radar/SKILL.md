@@ -25,6 +25,7 @@ Search the repository for current instructions and review aids:
 
 - `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`;
 - issue and pull-request templates;
+- an AI/LLM contribution policy (`AI_POLICY.md`, or an AI section inside `CONTRIBUTING`/governance);
 - governance, DCO/CLA, changelog and commit conventions;
 - `.agents/skills/`, `.claude/skills/`, or other in-repo reviewer skills;
 - issue-specific directions and recent maintainer comments.
@@ -61,7 +62,20 @@ Technically solvable does not mean upstream wants the change.
 
 Estimate subsystem, likely surfaces, reproduction state, testing burden, review burden, and policy/design ambiguity. If a small-looking change alters default network access, public API, data format, release policy, or test cost, surface that policy decision.
 
-### 7. Decide
+### 7. Check contributor eligibility
+
+Qualify how the contribution would actually be produced, not only what it would contain. Before `GO`, establish whether the repository restricts:
+
+- AI- or LLM-authored code, and whether disclosure is required;
+- autonomous agents opening issues or pull requests;
+- AI-authored code on newcomer-reserved labels such as `good first issue`, `E-easy`, or `E-has-instructions`, which some projects reserve to protect onboarding value;
+- who must be accountable for the change, and whether a reviewer must agree in advance.
+
+A repository can want the change and still forbid the way you would produce it. Treat an unread AI policy as an unknown, not as permission. Quote the governing sentence rather than summarizing it; these policies turn on exact wording.
+
+When the policy forbids the intended production method, decide `SKIP` regardless of technical merit — or `ASK`, when a permitted route exists and the user may want it.
+
+### 8. Decide
 
 Use exactly one:
 
@@ -72,7 +86,7 @@ Use exactly one:
 
 Read [`references/decision-policy.md`](references/decision-policy.md).
 
-### 8. Produce the Contribution Brief
+### 9. Produce the Contribution Brief
 
 Follow [`references/contribution-brief.md`](references/contribution-brief.md). Include evidence freshness, main uncertainty, one next action, and the authority boundary.
 
@@ -83,4 +97,5 @@ Follow [`references/contribution-brief.md`](references/contribution-brief.md). I
 - Never mutate a checkout.
 - Never infer maintainer intent from labels, issue age, or absence of an assignee alone.
 - Never recommend new implementation while a current competing PR should be awaited.
+- Never emit `GO` for a contribution whose production method the repository's AI policy forbids.
 - When evidence is inaccessible or contradictory, lower confidence instead of guessing.

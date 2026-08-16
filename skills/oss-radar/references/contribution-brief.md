@@ -40,6 +40,12 @@ Similar accepted/rejected work, clearly labeled as inference.
 ### Unknowns
 Anything not established.
 
+## Contributor eligibility
+- AI/LLM policy: none found | permits with disclosure | restricts some work | forbids the intended method
+- Governing text: quote the deciding sentence, with file/URL and date
+- Intended production method: ...
+- Result: permitted | not permitted | unknown
+
 ## Scope and feasibility
 - Likely subsystem: ...
 - Expected surfaces/files: ... or Unknown
