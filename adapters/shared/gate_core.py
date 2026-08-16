@@ -334,7 +334,10 @@ def evaluate_action(action: str, case: dict[str, Any], cwd: Path | None = None) 
         return Decision(False, action, lever_reason)
 
     expected_head = case.get("expected_head_sha")
-    current_head = _current_head(cwd)
+    # Pure policy evaluation must not depend on whatever repository happens to
+    # contain the test process. Only hook/payload evaluation supplies a cwd and
+    # therefore binds the decision to the checkout's actual HEAD.
+    current_head = _current_head(cwd) if cwd is not None else None
     if expected_head and current_head and not _heads_match(current_head, expected_head):
         return Decision(False, action, f"current head {current_head} does not match expected {expected_head}")
 
