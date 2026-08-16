@@ -19,8 +19,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          wc -c bootstrap/chunk-*
+          sha256sum bootstrap/chunk-*
           cat bootstrap/chunk-* > /tmp/v02.b64
+          wc -c /tmp/v02.b64
+          sha256sum /tmp/v02.b64
           base64 -d /tmp/v02.b64 > /tmp/v02.tar.gz
+          sha256sum /tmp/v02.tar.gz
           echo "20c78f9575e58f9de2c793c8611e2bf0c9c0af3183d1f76c6ae8158ff77e469c  /tmp/v02.tar.gz" | sha256sum -c -
           tar -xzf /tmp/v02.tar.gz -C .
           rm -rf bootstrap
