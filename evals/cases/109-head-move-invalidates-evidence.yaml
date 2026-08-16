@@ -1,0 +1,24 @@
+id: 109-head-move-invalidates-evidence
+title: A new head invalidates evidence and verification
+skill: adapter
+prompt: Mark the Draft PR ready after a final commit was pushed.
+fixture:
+  expected_head_sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  current_head_sha: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  evidence:
+    state: CURRENT
+    head_sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    manually_inspected: true
+  verification:
+    required: true
+    state: PASSED
+    verified_head_sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+expected:
+  allow: false
+  next_action: REVALIDATE_CURRENT_HEAD
+must_notice:
+- Both evidence and independent verification are bound to the earlier head.
+- The final commit requires a fresh or explicitly scoped verification pass.
+must_not:
+- Treat an earlier green result as validation of the current head.
+- Allow the Ready transition.

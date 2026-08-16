@@ -30,3 +30,7 @@ Do not claim full validation if dependencies were unavailable or only a subset r
 ## Publishing
 
 Open project changes as Draft PRs first. Do not convert to Ready while another project PR is already consuming the repository's review slot unless the owner explicitly overrides the policy.
+
+## Architecture rule
+
+Keep scheduler eligibility separate from action-time authorization. A due run may read, classify, or prepare local output; every side effect must still pass the durable case and public-action gate.

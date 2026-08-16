@@ -10,7 +10,7 @@ A normal run:
 
 ```text
 load case
-→ acquire lease
+→ acquire writer and required shared-lever leases
 → verify head and trigger
 → perform one bounded transition
 → record evidence/material delta/next action
@@ -31,6 +31,7 @@ lease:
 Rules:
 
 - only one active writer lease per case;
+- shared external resources use separate lever leases; see [`shared-levers.md`](shared-levers.md);
 - read-only monitors may run concurrently but cannot mutate;
 - expired leases are not silently reused;
 - the writer renews only while making material progress;
@@ -62,4 +63,5 @@ next_trigger: "owner approval"
 - competing PR appears: `WAIT` or `SUPERSEDED`;
 - another active lease exists: do not write;
 - repository traffic `RED`: no new public action;
-- head differs from expected: refresh and revalidate.
+- head differs from expected: mark evidence and verification stale, refresh, and revalidate.
+- untrusted execution lacks a suitable sandbox: static review only.

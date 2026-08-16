@@ -10,3 +10,5 @@ The canonical skills can be linked into `.agents/skills/` or `~/.agents/skills/`
 4. Run the gate unit tests and dry-run denied commands before enabling it in an active worktree.
 
 Non-shell GitHub tools still require the orchestrator to call the gate core directly.
+
+The v0.2 runtime case also records execution trust/mode, current-head evidence, independent verification, internal run provenance, and action-scoped shared levers. Ready actions fail closed when those records are stale or inconsistent.

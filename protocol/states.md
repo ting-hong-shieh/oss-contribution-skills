@@ -1,6 +1,8 @@
 # Contribution state model
 
-One state string cannot represent engineering progress, upstream presentation, queue position, and authority. Every durable case records four independent axes.
+One state string cannot represent engineering progress, upstream presentation, queue
+position, authority, verification, and evidence freshness. Every durable case records
+four operational axes plus two assurance axes.
 
 ## Work state
 
@@ -24,7 +26,8 @@ ABANDONED
 COMPLETE
 ```
 
-`APPROVED` must come from an explicit user/owner authority transition; `oss-radar` cannot emit it.
+`APPROVED` must come from an explicit user/owner authority transition; `oss-radar`
+cannot emit it.
 
 ## Upstream state
 
@@ -70,6 +73,33 @@ READY_TRANSITION_ALLOWED
 CLOSE_OR_MERGE_ALLOWED
 ```
 
+## Verification state
+
+```text
+NOT_REQUIRED
+PENDING
+IN_PROGRESS
+PASSED
+FAILED
+BLOCKED
+```
+
+Verification is independent from self-review and upstream approval. See
+[`independent-verification.md`](independent-verification.md).
+
+## Evidence state
+
+```text
+NONE
+COLLECTING
+CURRENT
+STALE
+INVALID
+```
+
+Evidence is current only for the head recorded in the evidence packet. See
+[`evidence-bundles.md`](evidence-bundles.md).
+
 ## Normal path
 
 ```text
@@ -80,21 +110,27 @@ APPROVED
 → SELF_REVIEWED
 → ADVERSARIAL_REVIEWED
 → CLAIMS_VERIFIED
+→ evidence CURRENT
 → DRAFT_READY
 → DRAFT_OPEN
 → CI_OBSERVED
+→ independent verification PASSED (when required)
 → REVIEW_CAPACITY_CHECKED
 → READY_FOR_REVIEW
 → IN_REVIEW
 → MERGED / CLOSED / SUPERSEDED
 ```
 
-`CI_OBSERVED` and `REVIEW_CAPACITY_CHECKED` are gates recorded in evidence; they need not be permanent work-state enum values.
+`CI_OBSERVED` and `REVIEW_CAPACITY_CHECKED` are gates recorded in evidence; they
+need not be permanent work-state enum values.
 
 ## Transition rules
 
 - A later state does not imply earlier evidence exists; the case must record the gates.
-- A new head SHA invalidates head-bound validation, self-review, adversarial review, and claim verification until rerun or explicitly scoped.
+- A new head SHA invalidates head-bound validation, executable-surface audit,
+  self-review, adversarial review, claim verification, evidence freshness, and
+  independent verification until rerun or explicitly scoped.
 - Material scope expansion returns to `QUALIFIED`/`REQUALIFY`.
 - A competing implementation may move a case to `SUPERSEDED` without code failure.
-- Sessions release their lease when a transition completes or the case waits on an external trigger.
+- Sessions release their writer and shared-lever leases when a transition completes or
+  the case waits on an external trigger.

@@ -4,7 +4,7 @@ The bottleneck in OSS is often reviewer attention, not local implementation thro
 
 ## Default ready limit
 
-The default is one Ready PR per contributor per upstream repository. A repository policy may explicitly override the number.
+The default is one Ready PR per contributor per upstream repository. A repository policy may explicitly override the number. Capacity accounting should include observed open PRs even when they have not yet been promoted into managed contribution cases; the control plane must not hide review load merely because an agent session did not create the record.
 
 Drafts and local branches do not automatically consume the same review slot, but repeated pushes, comments, or requests can still create churn.
 

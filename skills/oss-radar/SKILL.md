@@ -11,7 +11,7 @@ Decide whether an OSS target deserves contribution effort **now**. Do not start 
 
 Exercise `READ` only. `GO` is a recommendation to enter another workflow, not permission to implement, claim, push, comment, or open a pull request.
 
-Read [`../../protocol/authority.md`](../../protocol/authority.md) and [`../../protocol/states.md`](../../protocol/states.md).
+Read [`../../protocol/authority.md`](../../protocol/authority.md), [`../../protocol/states.md`](../../protocol/states.md), and [`../../protocol/scheduler-vs-action-authorization.md`](../../protocol/scheduler-vs-action-authorization.md).
 
 ## Workflow
 
@@ -57,9 +57,9 @@ Separate:
 
 Technically solvable does not mean upstream wants the change.
 
-### 6. Bound scope and burden
+### 6. Bound scope, execution risk, and burden
 
-Estimate subsystem, likely surfaces, reproduction state, testing burden, review burden, and policy/design ambiguity. If a small-looking change alters default network access, public API, data format, release policy, or test cost, surface that policy decision.
+Estimate subsystem, likely surfaces, reproduction state, testing burden, review burden, policy/design ambiguity, and whether evaluating the work requires executing untrusted code. Identify any shared lever such as a remote branch, staging environment, deployment, release, DNS, secrets, billing, or rollback authority. If a small-looking change alters default network access, public API, data format, release policy, or test cost, surface that policy decision.
 
 ### 7. Decide
 
