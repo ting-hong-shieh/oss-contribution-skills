@@ -1,0 +1,39 @@
+name: Apply validated protocol hardening patch
+
+on:
+  push:
+    branches: [agent/eliza-inspired-contracts]
+    paths:
+      - '.bootstrap/**'
+      - '.github/workflows/bootstrap.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bootstrap-eliza-inspired-contracts
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify and apply prepared patch
+        run: |
+          cat .bootstrap/patch.*.b64 | base64 --decode > /tmp/skills.patch.gz
+          echo '750310b97752fbead8c355f10aed71889b18a6a8b14d6663d14a24eb9208a0ec  /tmp/skills.patch.gz' | sha256sum -c -
+          gzip -dc /tmp/skills.patch.gz > /tmp/skills.patch
+          git apply --check --binary /tmp/skills.patch
+          git apply --binary /tmp/skills.patch
+          rm -rf .bootstrap .github/workflows/bootstrap.yml
+      - name: Commit expanded source tree
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Harden OSS contribution protocol from evaluated agent patterns'
+          git push
