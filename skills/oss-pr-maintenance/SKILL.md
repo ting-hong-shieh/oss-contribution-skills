@@ -11,17 +11,22 @@ Maintain an open contribution as a collaboration with upstream, not as an endles
 
 `READ` only. Public replies, pushes, thread resolution, CI reruns, Ready transitions, closure, and merge each require separate authority.
 
-Read [`../../protocol/review-capacity.md`](../../protocol/review-capacity.md), [`../../protocol/public-action-gates.md`](../../protocol/public-action-gates.md), and [`../../protocol/states.md`](../../protocol/states.md).
+Read [`../../protocol/review-capacity.md`](../../protocol/review-capacity.md), [`../../protocol/public-action-gates.md`](../../protocol/public-action-gates.md), [`../../protocol/trust-boundaries.md`](../../protocol/trust-boundaries.md), [`../../protocol/evidence-bundles.md`](../../protocol/evidence-bundles.md), [`../../protocol/independent-verification.md`](../../protocol/independent-verification.md), [`../../protocol/states.md`](../../protocol/states.md), and [`../../protocol/scheduler-vs-action-authorization.md`](../../protocol/scheduler-vs-action-authorization.md).
 
 ## One-run workflow
 
 ### 1. Load durable state
 
+A scheduler may start this run because a check is due or an external trigger occurred. That eligibility does not grant push, comment, review, Ready, close, merge, or CI-rerun authority.
+
+
 Read the case’s expected head/base, last observed review/CI snapshot, current queue state, authority, lease, and next trigger. If no durable state exists, create a read-only observation packet rather than inferring history from the session.
 
-### 2. Verify identity and head
+### 2. Verify identity, head, and execution boundary
 
 Confirm repository, PR number, author, open/draft state, head SHA, base SHA, and whether the head moved unexpectedly. Never apply a prepared patch to a different head without revalidation.
+
+When the PR head is not controlled by the operator, inspect it from a trusted control checkout and execute it only in a disposable sandbox. Treat changed tests, manifests, lifecycle hooks, CI, and configuration as executable untrusted code. If isolation is unavailable, remain static-only and name the missing proof.
 
 ### 3. Compute the delta since the last check
 
@@ -35,7 +40,7 @@ Inspect only new or changed:
 - base/main drift;
 - competing PRs or maintainer direction;
 - draft/ready status;
-- claims in the PR body that became stale after a new commit.
+- claims, evidence bundles, executable-surface audits, and independent verification that became stale after a new commit.
 
 ### 4. Reassess the queue
 
@@ -53,6 +58,7 @@ Examples:
 - `REQUALIFY` — maintainer direction or scope changed;
 - `REBASE_REVALIDATE` — base advanced and semantic conflict risk exists;
 - `REPLY_READY` — concise evidence-backed response is prepared, not posted;
+- `VERIFY` — a different verifier should inspect the current head/evidence before Ready;
 - `ABANDON/SUPERSEDED` — competing work or direction replaced the contribution.
 
 ### 6. Keep public replies short
@@ -82,7 +88,7 @@ Produce a Maintenance Brief:
 
 - PR and exact head/base;
 - changes since last observation;
-- current four-axis state;
+- current operational state plus evidence/verification state;
 - blockers and evidence;
 - one recommended action;
 - public draft text, if needed;

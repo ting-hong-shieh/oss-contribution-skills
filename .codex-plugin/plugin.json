@@ -1,6 +1,6 @@
 {
   "name": "oss-contribution-skills",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Agent skills and enforcement adapters for high-quality OSS contributions with low maintainer burden.",
   "author": {
     "name": "Ting-Hong Shieh"

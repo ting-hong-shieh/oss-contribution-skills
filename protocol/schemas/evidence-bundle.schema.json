@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ting-hong-shieh/oss-contribution-skills/blob/main/protocol/schemas/evidence-bundle.schema.json",
+  "title": "OSS evidence bundle manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "head_sha",
+    "meta_sha256",
+    "artifacts"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "head_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "meta_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "bytes",
+          "kind",
+          "source",
+          "produced_by"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "enum": [
+              "log",
+              "report",
+              "screenshot",
+              "video",
+              "trajectory",
+              "test-output",
+              "benchmark",
+              "other"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "produced_by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lane": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

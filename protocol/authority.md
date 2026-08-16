@@ -41,6 +41,9 @@ A public-action gate should check:
 - active lease owner and expiry when required;
 - repository traffic state and ready slots;
 - required gates for the action;
+- evidence head/freshness and manual inspection;
+- required independent verification at the current head;
+- shared-lever ownership and expiry;
 - exact authority flag;
 - whether the command attempts force, close, merge, Ready, or speech.
 

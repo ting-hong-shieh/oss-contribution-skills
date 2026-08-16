@@ -1,82 +1,529 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/oss-contribution-case.schema.json",
+  "$id": "https://github.com/ting-hong-shieh/oss-contribution-skills/blob/main/protocol/schemas/case-state.schema.json",
   "title": "OSS contribution case",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "case_id",
     "repo",
+    "risk",
     "work_state",
     "upstream_state",
     "queue_state",
     "authority",
     "traffic",
     "gates",
+    "execution",
+    "evidence",
+    "verification",
+    "run_provenance",
+    "shared_levers",
     "next_action"
   ],
   "properties": {
-    "case_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$"},
-    "repo": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
-    "issue": {"type": ["integer", "null"], "minimum": 1},
-    "pr": {"type": ["integer", "null"], "minimum": 1},
-    "branch": {"type": ["string", "null"]},
-    "expected_head_sha": {"type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$"},
-    "work_state": {"type": "string"},
-    "upstream_state": {"type": "string"},
-    "queue_state": {"type": "string"},
+    "case_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "repo": {
+      "type": "string",
+      "pattern": "^[^/]+/[^/]+$"
+    },
+    "issue": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "pr": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "branch": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expected_head_sha": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "risk": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ]
+    },
+    "work_state": {
+      "type": "string"
+    },
+    "upstream_state": {
+      "type": "string"
+    },
+    "queue_state": {
+      "type": "string"
+    },
     "authority": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["read", "local_write", "remote_push", "open_draft_pr", "public_speech", "ready_transition", "force_push", "close_or_merge"],
+      "required": [
+        "read",
+        "local_write",
+        "remote_push",
+        "open_draft_pr",
+        "public_speech",
+        "ready_transition",
+        "force_push",
+        "close_or_merge"
+      ],
       "properties": {
-        "read": {"type": "boolean"},
-        "local_write": {"type": "boolean"},
-        "remote_push": {"type": "boolean"},
-        "open_draft_pr": {"type": "boolean"},
-        "public_speech": {"type": "boolean"},
-        "ready_transition": {"type": "boolean"},
-        "force_push": {"type": "boolean"},
-        "close_or_merge": {"type": "boolean"}
+        "read": {
+          "type": "boolean"
+        },
+        "local_write": {
+          "type": "boolean"
+        },
+        "remote_push": {
+          "type": "boolean"
+        },
+        "open_draft_pr": {
+          "type": "boolean"
+        },
+        "public_speech": {
+          "type": "boolean"
+        },
+        "ready_transition": {
+          "type": "boolean"
+        },
+        "force_push": {
+          "type": "boolean"
+        },
+        "close_or_merge": {
+          "type": "boolean"
+        }
       }
     },
     "traffic": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["state", "ready_slots_available"],
+      "required": [
+        "state",
+        "ready_slots_available"
+      ],
       "properties": {
-        "state": {"enum": ["GREEN", "YELLOW", "RED"]},
-        "ready_slots_available": {"type": "boolean"},
-        "reason": {"type": "string"}
+        "state": {
+          "enum": [
+            "GREEN",
+            "YELLOW",
+            "RED"
+          ]
+        },
+        "ready_slots_available": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
       }
     },
     "gates": {
       "type": "object",
-      "additionalProperties": {"type": "boolean"},
+      "additionalProperties": {
+        "type": "boolean"
+      },
       "properties": {
-        "upstream_instructions_read": {"type": "boolean"},
-        "local_validation": {"type": "boolean"},
-        "generated_artifacts_checked": {"type": "boolean"},
-        "self_review": {"type": "boolean"},
-        "adversarial_review": {"type": "boolean"},
-        "claims_verified": {"type": "boolean"},
-        "ci_observed": {"type": "boolean"},
-        "review_capacity_checked": {"type": "boolean"},
-        "no_unresolved_changes_requested": {"type": "boolean"}
+        "trust_boundary_checked": {
+          "type": "boolean"
+        },
+        "upstream_instructions_read": {
+          "type": "boolean"
+        },
+        "local_validation": {
+          "type": "boolean"
+        },
+        "generated_artifacts_checked": {
+          "type": "boolean"
+        },
+        "self_review": {
+          "type": "boolean"
+        },
+        "adversarial_review": {
+          "type": "boolean"
+        },
+        "claims_verified": {
+          "type": "boolean"
+        },
+        "evidence_bundle_verified": {
+          "type": "boolean"
+        },
+        "ci_observed": {
+          "type": "boolean"
+        },
+        "review_capacity_checked": {
+          "type": "boolean"
+        },
+        "no_unresolved_changes_requested": {
+          "type": "boolean"
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trust",
+        "mode",
+        "audited_head_sha",
+        "network_policy",
+        "credentials_present",
+        "lifecycle_scripts"
+      ],
+      "properties": {
+        "trust": {
+          "enum": [
+            "TRUSTED_OWN_BRANCH",
+            "UNTRUSTED_PR_HEAD",
+            "READ_ONLY_REMOTE"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "HOST_LOCAL",
+            "DISPOSABLE_SANDBOX",
+            "STATIC_ONLY",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "audited_head_sha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "network_policy": {
+          "enum": [
+            "DENY_BY_DEFAULT",
+            "ALLOWLISTED",
+            "HOST_DEFAULT",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "credentials_present": {
+          "type": "boolean"
+        },
+        "lifecycle_scripts": {
+          "enum": [
+            "DISABLED",
+            "AUDITED_AND_ALLOWED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "head_sha",
+        "manifest_path",
+        "manifest_sha256",
+        "artifacts",
+        "manually_inspected",
+        "limitations"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "NONE",
+            "COLLECTING",
+            "CURRENT",
+            "STALE",
+            "INVALID"
+          ]
+        },
+        "head_sha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "manifest_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "manifest_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "artifacts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "manually_inspected": {
+          "type": "boolean"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "state",
+        "creator",
+        "verifier",
+        "verified_head_sha",
+        "completed_at",
+        "findings"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "state": {
+          "enum": [
+            "NOT_REQUIRED",
+            "PENDING",
+            "IN_PROGRESS",
+            "PASSED",
+            "FAILED",
+            "BLOCKED"
+          ]
+        },
+        "creator": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verified_head_sha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{7,40}$"
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "run_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "participation",
+        "provider",
+        "model",
+        "client",
+        "skill_revision",
+        "recorded_at"
+      ],
+      "properties": {
+        "participation": {
+          "enum": [
+            "HUMAN_ONLY",
+            "AI_ASSISTED",
+            "DETERMINISTIC_ONLY",
+            "UNKNOWN"
+          ]
+        },
+        "provider": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "client": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "skill_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recorded_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "shared_levers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "required_for",
+          "state",
+          "owner",
+          "acquired_at",
+          "expires_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "kind": {
+            "enum": [
+              "REMOTE_BRANCH",
+              "DEPLOYMENT",
+              "STAGING",
+              "DNS",
+              "SECRETS",
+              "BILLING",
+              "RELEASE",
+              "ROLLBACK",
+              "OTHER"
+            ]
+          },
+          "required_for": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "remote_push",
+                "force_push",
+                "open_draft_pr",
+                "open_ready_pr",
+                "ready_transition",
+                "public_speech",
+                "close_or_merge"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "state": {
+            "enum": [
+              "UNCLAIMED",
+              "HELD",
+              "RELEASED",
+              "BLOCKED"
+            ]
+          },
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "acquired_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
       }
     },
     "lease": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "additionalProperties": false,
-      "required": ["required", "owner", "expires_at"],
+      "required": [
+        "required",
+        "owner",
+        "expires_at"
+      ],
       "properties": {
-        "required": {"type": "boolean"},
-        "owner": {"type": ["string", "null"]},
-        "expires_at": {"type": ["string", "null"], "format": "date-time"}
+        "required": {
+          "type": "boolean"
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
       }
     },
-    "next_action": {"type": "string", "minLength": 1},
-    "next_trigger": {"type": ["string", "null"]},
-    "notes": {"type": "array", "items": {"type": "string"}}
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "next_trigger": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   }
 }

@@ -7,6 +7,8 @@ import json
 import re
 import subprocess
 import sys
+
+import jsonschema
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,9 +64,15 @@ def validate_links(errors: list[str]) -> None:
 def validate_json(errors: list[str]) -> None:
     for path in ROOT.rglob("*.json"):
         try:
-            json.loads(path.read_text(encoding="utf-8"))
+            data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             fail(errors, f"{path.relative_to(ROOT)}: invalid JSON: {exc}")
+            continue
+        if path.name.endswith(".schema.json"):
+            try:
+                jsonschema.Draft202012Validator.check_schema(data)
+            except jsonschema.SchemaError as exc:
+                fail(errors, f"{path.relative_to(ROOT)}: invalid JSON Schema: {exc.message}")
     claude = json.loads((ROOT / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
     codex = json.loads((ROOT / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
     for key in ("name", "version", "description", "license"):
