@@ -10,6 +10,7 @@ Use only when all of the following are true:
 - the problem/work is still relevant;
 - no known active competing effort makes duplication likely;
 - upstream intent is explicit or sufficiently supported by repository policy/current context;
+- the repository's AI/LLM contribution policy permits the contribution as it will actually be produced;
 - expected scope is reviewable;
 - no discussion/approval gate is currently unmet;
 - confidence is at least `Medium`.
@@ -53,6 +54,8 @@ Typical states:
 - `SUPERSEDED`;
 - `STALE`;
 - `NOT_WORTH_IT`.
+
+A repository whose AI policy forbids the intended production method is `NOT_WORTH_IT` for that method, even when the change itself is wanted. Record the policy, not only the decision, so a future run can tell whether the policy or the plan changed.
 
 A skip is contextual, not permanent. Record the reason so a future run can tell what changed.
 

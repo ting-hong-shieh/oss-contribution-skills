@@ -16,7 +16,8 @@ Stop unless all are available:
 3. explicit approval for `LOCAL` work;
 4. a durable case with no conflicting active lease;
 5. repository traffic is not `RED`;
-6. the current checkout/worktree and branch are identified.
+6. the current checkout/worktree and branch are identified;
+7. the repository's AI/LLM contribution policy permits the contribution as it will be produced, including any disclosure it requires.
 
 Read [`../../protocol/authority.md`](../../protocol/authority.md), [`../../protocol/states.md`](../../protocol/states.md), [`../../protocol/claim-evidence.md`](../../protocol/claim-evidence.md), and [`../../protocol/sessions-and-leases.md`](../../protocol/sessions-and-leases.md).
 
