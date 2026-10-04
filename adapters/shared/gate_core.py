@@ -12,6 +12,7 @@ import datetime as dt
 import json
 import os
 import re
+import shlex
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,7 +40,9 @@ def _flatten_command(value: Any) -> str:
     if isinstance(value, str):
         return value
     if isinstance(value, list):
-        return " ".join(_flatten_command(item) for item in value)
+        # An argv list such as ["bash", "-lc", "git push"] must keep its word
+        # boundaries; a plain space join would hide the script from the classifier.
+        return shlex.join(_flatten_command(item) for item in value)
     if isinstance(value, dict):
         for key in ("command", "cmd", "script", "shell_command"):
             if key in value:
@@ -62,37 +65,232 @@ def extract_command(payload: dict[str, Any]) -> str:
     return ""
 
 
-def classify_command(command: str) -> str:
-    """Classify a command into one authority class or benign."""
-    normalized = " ".join(command.strip().split())
-    lower = normalized.lower()
+# Shell operators that start a new command. Newlines count: collapsing them into
+# spaces would hide a second command on the next line. Quoted text is preserved.
+_PUNCTUATION = ";&|()`\n"
+_ENV_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+_WRAPPERS = {"env", "sudo", "command", "builtin", "exec", "nohup", "time", "nice", "stdbuf", "xargs"}
+_WRAPPER_OPTIONS_WITH_VALUE = {"-u", "-g", "-C", "-n", "--unset", "--chdir", "--user", "--group"}
+_SHELLS = {"sh", "bash", "zsh", "dash", "ksh"}
+_GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--super-prefix", "--config-env"}
+_GH_OPTIONS_WITH_VALUE = {"-R", "--repo", "--hostname"}
+_GH_READ_ONLY_GROUPS = {"search", "auth", "help", "version", "completion", "browse", "status"}
+_GH_READ_ONLY_SUBCOMMANDS = {"view", "list", "status", "diff", "checks", "checkout", "clone", "download", "watch", "get"}
+_GH_PR_CREATE_OPTIONS_WITH_VALUE = {
+    "-t", "--title", "-b", "--body", "-F", "--body-file", "-B", "--base", "-H", "--head",
+    "-l", "--label", "-a", "--assignee", "-r", "--reviewer", "-m", "--milestone",
+    "-p", "--project", "-T", "--template", "-R", "--repo",
+}
+_HTTP_CLIENTS = {"curl", "wget", "http", "https", "xh"}
+_MUTATING_METHODS = {"POST", "PATCH", "PUT", "DELETE"}
+_MAX_NESTING = 4
 
-    if not normalized:
+
+def _split_segments(command: str) -> list[list[str]] | None:
+    """Split a shell command into argv lists, or return None if it cannot be parsed."""
+    lexer = shlex.shlex(command, posix=True, punctuation_chars=_PUNCTUATION)
+    lexer.whitespace = " \t\r"
+    lexer.whitespace_split = True
+    segments: list[list[str]] = [[]]
+    try:
+        for token in lexer:
+            if token and all(char in _PUNCTUATION for char in token):
+                segments.append([])
+            else:
+                segments[-1].append(token)
+    except ValueError:
+        return None
+    return [segment for segment in segments if segment]
+
+
+def _strip_wrappers(argv: list[str]) -> list[str]:
+    index = 0
+    while index < len(argv):
+        token = argv[index]
+        if _ENV_ASSIGNMENT.match(token):
+            index += 1
+        elif Path(token).name in _WRAPPERS:
+            index += 1
+            while index < len(argv) and argv[index].startswith("-"):
+                index += 2 if argv[index] in _WRAPPER_OPTIONS_WITH_VALUE else 1
+        else:
+            break
+    return argv[index:]
+
+
+def _method_and_body(args: list[str], method_flags: set[str], body_prefixes: tuple[str, ...]) -> tuple[str | None, bool]:
+    method: str | None = None
+    has_body = False
+    for index, token in enumerate(args):
+        if token in method_flags:
+            method = args[index + 1] if index + 1 < len(args) else ""
+        elif token.startswith("-X") and len(token) > 2:
+            method = token[2:]
+        elif token.startswith(("--method=", "--request=")):
+            method = token.split("=", 1)[1]
+        elif token.startswith(body_prefixes):
+            has_body = True
+    return method, has_body
+
+
+def _classify_git(args: list[str]) -> str:
+    index = 0
+    while index < len(args) and args[index].startswith("-"):
+        index += 2 if args[index] in _GIT_OPTIONS_WITH_VALUE else 1
+    if index >= len(args) or args[index] != "push":
         return "benign"
-    if re.search(r"(^|[;&|]\s*)git\s+push\b", lower):
-        if "--force" in lower or " -f" in lower:
-            return "force_push"
-        return "remote_push"
-    if re.search(r"(^|[;&|]\s*)gh\s+pr\s+create\b", lower):
-        return "open_draft_pr" if "--draft" in lower else "open_ready_pr"
-    if re.search(r"(^|[;&|]\s*)gh\s+pr\s+ready\b", lower):
-        return "ready_transition"
-    if re.search(r"(^|[;&|]\s*)gh\s+(pr|issue)\s+(comment|review)\b", lower):
-        return "public_speech"
-    if re.search(r"(^|[;&|]\s*)gh\s+pr\s+(close|merge)\b", lower):
-        return "close_or_merge"
-    if re.search(r"(^|[;&|]\s*)gh\s+issue\s+close\b", lower):
-        return "close_or_merge"
-    if re.search(r"(^|[;&|]\s*)gh\s+pr\s+edit\b", lower):
-        return "public_speech"
-    if re.search(r"(^|[;&|]\s*)gh\s+issue\s+edit\b", lower):
-        return "public_speech"
-    if re.search(r"(^|[;&|]\s*)gh\s+api\b", lower):
-        if any(token in lower for token in (" -x post", " -x patch", " -x put", " -x delete", "--method post", "--method patch", "--method put", "--method delete", " -f ", " --field ")):
+    action = "remote_push"
+    for token in args[index + 1:]:
+        if token.startswith(("--delete", "--mirror", "--prune")) or token.startswith(":"):
             return "unclassified_mutation"
-    if "api.github.com" in lower and any(token in lower for token in ("-x post", "-x patch", "-x put", "-x delete", "--request post", "--request patch", "--request put", "--request delete")):
-        return "unclassified_mutation"
+        if token.startswith("--"):
+            if token.startswith(("--force", "--force-with-lease", "--force-if-includes")):
+                action = "force_push"
+        elif token.startswith("-"):
+            if "d" in token[1:]:
+                return "unclassified_mutation"
+            if "f" in token[1:]:
+                action = "force_push"
+        elif token.startswith("+"):
+            action = "force_push"
+    return action
+
+
+def _classify_gh_pr_create(args: list[str]) -> str:
+    draft = False
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token in _GH_PR_CREATE_OPTIONS_WITH_VALUE:
+            index += 2
+            continue
+        if token in ("-d", "--draft", "--draft=true"):
+            draft = True
+        elif token == "--draft=false":
+            draft = False
+        index += 1
+    return "open_draft_pr" if draft else "open_ready_pr"
+
+
+def _classify_gh_api(args: list[str]) -> str:
+    field_flags = ("-f", "-F", "--field", "--raw-field")
+    fields: list[str] = []
+    has_input = False
+    is_graphql = False
+    for index, token in enumerate(args):
+        if token in field_flags:
+            fields.append(args[index + 1] if index + 1 < len(args) else "")
+        elif token.startswith(("--field=", "--raw-field=")) or (token[:2] in ("-f", "-F") and len(token) > 2):
+            fields.append(token)
+        elif token == "--input" or token.startswith("--input="):
+            has_input = True
+        elif token in ("graphql", "/graphql"):
+            is_graphql = True
+    method, _ = _method_and_body(args, {"-X", "--method"}, ())
+    if is_graphql:
+        if has_input or any("mutation" in field.lower() for field in fields):
+            return "unclassified_mutation"
+        return "benign"
+    effective = (method or ("POST" if fields or has_input else "GET")).upper()
+    return "unclassified_mutation" if effective in _MUTATING_METHODS else "benign"
+
+
+def _classify_gh(args: list[str]) -> str:
+    positional: list[str] = []
+    index = 0
+    while index < len(args) and len(positional) < 2:
+        token = args[index]
+        if token in _GH_OPTIONS_WITH_VALUE:
+            index += 2
+            continue
+        if not token.startswith("-"):
+            positional.append(token)
+        index += 1
+    if not positional:
+        return "benign"
+    group = positional[0]
+    sub = positional[1] if len(positional) > 1 else ""
+    if group == "api":
+        return _classify_gh_api(args[args.index("api") + 1:])
+    if group in _GH_READ_ONLY_GROUPS or sub in _GH_READ_ONLY_SUBCOMMANDS:
+        return "benign"
+    if group in ("pr", "issue"):
+        rest = args[args.index(sub) + 1:] if sub else []
+        if group == "pr" and sub == "create":
+            return _classify_gh_pr_create(rest)
+        if group == "pr" and sub == "ready":
+            return "ready_transition"
+        if sub in ("comment", "edit") or (group == "pr" and sub == "review") or (group == "issue" and sub == "create"):
+            return "public_speech"
+        if sub in ("close", "merge"):
+            return "close_or_merge"
+    # Any other gh subcommand may mutate GitHub state; deny until it is classified.
+    return "unclassified_mutation"
+
+
+def _classify_http(args: list[str]) -> str:
+    if not any("github.com" in token for token in args):
+        return "benign"
+    method, has_body = _method_and_body(
+        args,
+        {"-X", "--request", "--method"},
+        ("-d", "--data", "--json", "-F", "--form", "-T", "--upload-file", "--post-data", "--post-file", "--body-data", "--body-file"),
+    )
+    effective = (method or ("POST" if has_body else "GET")).upper()
+    return "unclassified_mutation" if effective in _MUTATING_METHODS else "benign"
+
+
+def _classify_argv(argv: list[str], depth: int) -> str:
+    argv = _strip_wrappers(argv)
+    if not argv:
+        return "benign"
+    program = Path(argv[0]).name
+    if program in _SHELLS:
+        for index, token in enumerate(argv[1:], start=1):
+            if token.startswith("-") and not token.startswith("--") and "c" in token[1:]:
+                script = argv[index + 1] if index + 1 < len(argv) else ""
+                return _classify(script, depth + 1)
+        return "benign"
+    if program == "eval":
+        return _classify(" ".join(argv[1:]), depth + 1)
+    if program == "git":
+        return _classify_git(argv[1:])
+    if program == "gh":
+        return _classify_gh(argv[1:])
+    if program in _HTTP_CLIENTS:
+        return _classify_http(argv[1:])
     return "benign"
+
+
+def _classify(command: str, depth: int) -> str:
+    if depth > _MAX_NESTING:
+        return "unclassified_mutation"
+    segments = _split_segments(command)
+    if segments is None:
+        # Unbalanced quoting: fail closed if a GitHub-capable tool appears at all.
+        if re.search(r"\b(git|gh|curl|wget)\b", command):
+            return "unclassified_mutation"
+        return "benign"
+    actions = {_classify_argv(segment, depth) for segment in segments} - {"benign"}
+    if not actions:
+        return "benign"
+    if len(actions) == 1:
+        return actions.pop()
+    # One command line asking for several public actions needs several grants;
+    # deny and let each action run, and be checked, on its own.
+    return "unclassified_mutation"
+
+
+def classify_command(command: str) -> str:
+    """Classify a shell command into one authority class, benign, or unclassified_mutation.
+
+    Commands are tokenized like a shell would split them, including wrappers such as
+    `env` and `bash -c`, and any GitHub mutation that cannot be mapped to a single
+    authority class is reported as `unclassified_mutation` so the gate denies it.
+    String classification cannot see git aliases, scripts, or other programs that
+    call GitHub on their own; treat this gate as a guardrail, not a sandbox.
+    """
+    return _classify(command, 0)
 
 
 def discover_case_file(start: Path | None = None) -> Path | None:

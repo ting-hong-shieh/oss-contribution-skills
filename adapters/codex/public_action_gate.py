@@ -19,7 +19,10 @@ def main() -> int:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": f"invalid hook JSON: {exc}"}}))
         return 0
     result = evaluate_payload(payload)
-    print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow" if result.allow else "deny", "permissionDecisionReason": result.reason}}))
+    if result.allow:
+        # Stay silent so the host's own approval policy still applies.
+        return 0
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": result.reason}}))
     return 0
 
 

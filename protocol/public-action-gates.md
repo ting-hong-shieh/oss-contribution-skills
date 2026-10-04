@@ -8,9 +8,14 @@ At minimum:
 
 - `git push` and force-push variants;
 - `gh pr create`, `gh pr ready`, `gh pr edit`, `gh pr close`, `gh pr merge`;
-- `gh issue comment`, `gh pr comment`, `gh pr review`;
+- `gh issue create`, `gh issue comment`, `gh pr comment`, `gh pr review`;
 - mutating `gh api` or direct GitHub API calls;
 - thread resolution and workflow reruns when exposed through tools rather than shell.
+
+Classify commands the way a shell splits them, including wrappers such as `env`,
+`bash -c`, and `git -C`. Treat any other `gh` subcommand that is not known to be
+read-only, and any command line that combines several public actions, as an
+unclassified mutation and deny it.
 
 ## Checks
 

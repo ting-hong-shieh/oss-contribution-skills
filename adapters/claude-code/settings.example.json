@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python /ABSOLUTE/PATH/oss-contribution-skills/adapters/claude-code/public_action_gate.py"
+            "command": "python3 /ABSOLUTE/PATH/oss-contribution-skills/adapters/claude-code/public_action_gate.py"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python /ABSOLUTE/PATH/oss-contribution-skills/adapters/claude-code/completion_gate.py"
+            "command": "python3 /ABSOLUTE/PATH/oss-contribution-skills/adapters/claude-code/completion_gate.py"
           }
         ]
       }

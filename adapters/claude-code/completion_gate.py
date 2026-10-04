@@ -10,7 +10,6 @@ sys.path.insert(0, str(HERE.parent / "shared"))
 from completion_core import check_completion  # noqa: E402
 
 ok, reason = check_completion()
-if ok:
-    print(json.dumps({"decision": "allow", "reason": reason}))
-else:
+# A Stop hook only blocks; "allow" is not a decision value, so stay silent when ok.
+if not ok:
     print(json.dumps({"decision": "block", "reason": reason}))
