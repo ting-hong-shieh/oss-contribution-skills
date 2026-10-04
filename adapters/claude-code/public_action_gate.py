@@ -20,10 +20,14 @@ def main() -> int:
         print(json.dumps(decision))
         return 0
     result = evaluate_payload(payload)
+    if result.allow:
+        # Stay silent: an explicit "allow" would skip the host's own permission
+        # prompt, and this gate only adds denials.
+        return 0
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
-            "permissionDecision": "allow" if result.allow else "deny",
+            "permissionDecision": "deny",
             "permissionDecisionReason": result.reason,
         }
     }

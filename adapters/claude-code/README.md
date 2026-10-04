@@ -10,6 +10,8 @@ The canonical skills remain portable. This adapter adds deterministic hooks for 
 4. Export `OSS_AGENT_ID` when the case requires a writer lease.
 5. Test with harmless and intentionally denied commands before enabling on a live repository.
 
+The hook only adds denials. For a command it allows, it prints nothing, so the host's normal permission prompts still apply. It classifies command text, so it cannot see git aliases, scripts, or other programs that call GitHub on their own: treat it as a guardrail, not a sandbox.
+
 The example intercepts Bash commands. GitHub connector or other non-shell tool calls must invoke the same gate core in the orchestrator; shell hooks cannot see actions outside the shell.
 
 The optional Stop hook requires `OSS_RUN_RECORD` and blocks completion until the bounded run records its state transition and next action.
